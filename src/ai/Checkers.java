@@ -64,6 +64,10 @@ public class Checkers {
 		}
 		return false;
 	}
+	
+	public int isWin() {
+		return 0;
+	}
 
 	public int getPlayer() {
 		return player;
