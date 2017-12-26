@@ -25,9 +25,23 @@ public class Game {
 	}
 	
 	public static void dfs(Checkers checkers) {
+		checkers.print();
+		//if(checkers.isWin()) {
+		//	System.out.println("¹CÀ¸µ²§ô");
+		//	return;
+		//}
+		for(Position p: checkers.getJumpableCset()) {
+			for(Direction d: checkers.getJumpable(p)) {
+				checkers.jump(p, d);
+				System.out.println("¸õ");
+				dfs(checkers);
+			}
+		}
 		for(Position p: checkers.getMovableCset()) {
-			if(checkers.isMovable(p)) {
-				
+			for(Direction d: checkers.getMovable(p)) {
+				checkers.move(p, d);
+				System.out.println("²¾");
+				dfs(checkers);
 			}
 		}
 	}
