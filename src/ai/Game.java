@@ -1,46 +1,34 @@
 package ai;
 
-import java.util.Scanner;
-
-import ai.Checkers.Direction;
-
 public class Game {
 
 	public static void main(String[] args) {
 
-		String s;
-		int x;
-		int y;
+		Checkers checkers;
 
-		final int playerNum = 3;
-		Scanner scanner = new Scanner(System.in);
-		Checkers checkers = new Checkers(playerNum);
+		// 下方走到上方
+		System.out.println("question 1");
+		checkers = new Checkers(1);
+		checkers.start();
 
-		System.out.println("Game start");
-
+		// 下方走到上方
 		while (checkers.isWin() == 0) {
 
-			checkers.print();
-			System.out.println("現在輪到玩家" + checkers.getPlayer());
-
-			s = scanner.nextLine();
-			x = scanner.nextInt();
-			y = scanner.nextInt();
-			switch (s) {
-			case "LEFT":
-				checkers.move(x,y,Direction.LEFT);
-				break;
-			case "LEFTUP":
-				break;
-			case "RIGHTUP":
-				break;
-			case "RIGHT":
-				break;
-			case "RIGHTDOWN":
-				break;
-			case "LEFTDOWN":
-				break;
-			}
 		}
+
+		// 下方走到左上方
+		System.out.println("question 2");
+		checkers = new Checkers(2);
+		checkers.start();
+
+		// 特定位置有棋子
+		System.out.println("question 3");
+		checkers = new Checkers(3);
+		checkers.start();
+
+		// 移動特定紅棋子
+		System.out.println("question 4");
+		checkers = new Checkers(4);
+		checkers.start();
 	}
 }
