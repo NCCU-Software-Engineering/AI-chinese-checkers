@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class Checkers {
 
-	final int SIZE = 19;
+	final int SIZE = 21;
 	int[][] map;
 
 	public Set<Position> cset = new HashSet<Position>();
@@ -101,8 +101,14 @@ public class Checkers {
 
 	// ≤æ∞ ¥—§l
 	public void move(Position p, Direction d) {
-		p.x += d.x;
-		p.y += d.y;
+		for(Position chess : cset) {
+			if(chess.equals(p)) {
+				chess.x = 0;
+				chess.y = 0;
+			}
+		}
+		//p.x += d.x;
+		//p.y += d.y;
 	}
 
 	// ∏ı≈D¥—§l

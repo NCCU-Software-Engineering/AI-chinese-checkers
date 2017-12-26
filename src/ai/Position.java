@@ -23,4 +23,11 @@ public class Position {
 	public boolean equals(Object that) {
 		return true;
 	}
+	
+	public boolean equals(Position p) {
+		if(this.x == p.x && this.y == p.y) {
+			return true;
+		}
+		return false;
+	}
 }
