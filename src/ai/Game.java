@@ -29,14 +29,14 @@ public class Game {
 		//if(checkers.isWin()) {
 		//	System.out.println("¹CÀ¸µ²§ô");
 		//	return;
-		//}
-		for(Position p: checkers.getJumpableCset()) {
+		//}		
+/*		for(Position p: checkers.getJumpableCset()) {
 			for(Direction d: checkers.getJumpable(p)) {
 				checkers.jump(p, d);
 				System.out.println("¸õ");
 				dfs(checkers);
 			}
-		}
+		}*/
 		for(Position p: checkers.getMovableCset()) {
 			for(Direction d: checkers.getMovable(p)) {
 				checkers.move(p, d);

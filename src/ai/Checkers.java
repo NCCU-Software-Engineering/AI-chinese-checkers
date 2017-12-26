@@ -3,10 +3,7 @@ package ai;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import javafx.util.Pair;
 
 public class Checkers {
 
@@ -48,50 +45,54 @@ public class Checkers {
 
 	// 得到所有可以移動的棋子
 	public Set<Position> getMovableCset() {
-		return cset.stream().filter(p -> isMovable(p)).collect(Collectors.toSet());
+		Set<Position> cset2 = cset.stream().filter((p) -> isMovable(p)).collect(Collectors.toSet());
+		return cset2;
 	}
-	
+
+	// 得到所有可以跳躍的棋子
+	public Set<Position> getJumpableCset() {
+		Set<Position> cset2 = cset.stream().filter(p -> isJumpable(p)).collect(Collectors.toSet());
+		return cset2;
+	}
+
 	// 測試是否可以移動
 	public boolean isMovable(Position p) {
 		for (Direction d : Direction.values()) {
-			if (map[p.x + d.x][p.x + d.y] == 0) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	// 取得所有可以移動方向
-	public EnumSet<Direction> getMovable(Position p) {
-		EnumSet<Direction> ans = EnumSet.noneOf(Direction.class);
-		for (Direction d : Direction.values()) {
-			if (map[p.x + d.x][p.x + d.y] == 0) {
-				ans.add(d);
-			}
-		}
-		return ans;
-	}
-	
-	// 得到所有可以跳躍的棋子
-	public Set<Position> getJumpableCset() {
-		return cset.stream().filter(p -> isJumpable(p)).collect(Collectors.toSet());
-	}
-	
-	// 測試是否可以跳躍
-	public boolean isJumpable(Position p) {
-		for (Direction d : Direction.values()) {
-			if (map[p.x + d.x][p.x + d.y] == 1 && map[p.x + d.x * 2][p.x + d.y * 2] == 0) {
+			if (map[p.x + d.x][p.y + d.y] == 0 && !cset.contains(new Position(p.x + d.x, p.y + d.y))) {
 				return true;
 			}
 		}
 		return false;
 	}
 
+	// 測試是否可以跳躍
+	public boolean isJumpable(Position p) {
+		for (Direction d : Direction.values()) {
+			if (cset.contains(new Position(p.x + d.x, p.y + d.y)) && map[p.x + d.x * 2][p.y + d.y * 2] == 0
+					&& !cset.contains(new Position(p.x + d.x * 2, p.y + d.y * 2))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// 取得所有可以移動方向
+	public EnumSet<Direction> getMovable(Position p) {
+		EnumSet<Direction> ans = EnumSet.noneOf(Direction.class);
+		for (Direction d : Direction.values()) {
+			if (map[p.x + d.x][p.y + d.y] == 0 && !cset.contains(new Position(p.x + d.x, p.y + d.y))) {
+				ans.add(d);
+			}
+		}
+		return ans;
+	}
+
 	// 取得所有可以跳躍方向
 	public EnumSet<Direction> getJumpable(Position p) {
 		EnumSet<Direction> ans = EnumSet.noneOf(Direction.class);
 		for (Direction d : Direction.values()) {
-			if (map[p.x + d.x][p.x + d.y] == 1 && map[p.x + d.x * 2][p.x + d.y * 2] == 0) {
+			if (cset.contains(new Position(p.x + d.x, p.y + d.y)) && map[p.x + d.x * 2][p.y + d.y * 2] == 0
+					&& !cset.contains(new Position(p.x + d.x * 2, p.y + d.y * 2))) {
 				ans.add(d);
 			}
 		}
@@ -104,7 +105,7 @@ public class Checkers {
 		p.y += d.y;
 	}
 
-	//跳躍棋子
+	// 跳躍棋子
 	public void jump(Position p, Direction d) {
 		p.x += d.x * 2;
 		p.y += d.y * 2;
