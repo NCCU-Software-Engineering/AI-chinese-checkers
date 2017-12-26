@@ -1,17 +1,13 @@
 package ai;
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
+
+import javafx.util.Pair;
 
 public class Checkers {
-
-	public static final String ANSI_RESET = "\u001B[0m";
-	public static final String ANSI_BLACK = "\u001B[30m";
-	public static final String ANSI_RED = "\u001B[31m";
-	public static final String ANSI_GREEN = "\u001B[32m";
-	public static final String ANSI_YELLOW = "\u001B[33m";
-	public static final String ANSI_WHITE = "\u001B[37m";
-
 
 	final int SIZE = 19;
 	int[][] map;
@@ -44,23 +40,43 @@ public class Checkers {
 		return false;
 	}
 
-	public int isWin() {
-		return 0;
+	// 判斷遊戲是否結束
+	public boolean isWin() {
+		for (Position p : cset) {
+			if (map[p.x][p.y] != 2)
+				return false;
+		}
+		return true;
 	}
 
+	// 取得目前所有棋子位置
 	public Set<Position> getCset() {
 		return cset;
 	}
 
+	// 得到所有可以移動的棋子
 	public Set<Position> getMovableCset() {
-		cset.stream().filter(p -> {
-			if (map[p.x][p.x] == 0)
-				return true;
-			else
-				return false;
-		});
+		System.out.println("getMovableCset");
+		cset.stream().filter(p -> isMovable(p));
 		return cset;
 	}
+
+	public boolean isMovable(Position p) {
+		for (Direction d : Direction.values()) {
+			if (map[p.x + d.x][p.x + d.y] == 0 || map[p.x + d.x][p.x + d.y] == 1
+					|| map[p.x + d.x * 2][p.x + d.y * 2] == 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	//public EnumSet<Direction> getMovable(Position p) {
+
+	
+	//	for (Direction d : Direction.values()) {
+	//	}
+	//}
 
 	void print() {
 
@@ -99,4 +115,5 @@ public class Checkers {
 			break;
 		}
 	}
+
 }
