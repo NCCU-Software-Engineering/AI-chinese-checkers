@@ -1,12 +1,16 @@
 package ai;
 
-import java.util.Set;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Game {
 
-	public static void main(String[] args) {
+	static int totalCount = 0;
+	
+	public static void main(String[] args) throws IOException, InterruptedException {
 
 		Checkers checkers;
+		FileWriter fw = new FileWriter("D:\\out.txt", false);
 
 		// 下方走到上方
 		System.out.println("question 1");
@@ -27,37 +31,31 @@ public class Game {
 		 */
 	}
 
-	public static int dfs(Checkers checkers, int count) {
-		clearConsole();
-		checkers.print();
-		while (!checkers.isWin()) {
+	public static int dfs(Checkers checkers, int count) throws InterruptedException {
+		do {
 			checkers.print();
-			outerloop:
-			for (Position p : checkers.cset) {
-				//if(checkers.goal(p))
-					//continue;
+			
+			//1.先跳最遠
+			outerloop: for (Position p : checkers.cset) {
+			
+			
+			
+			
+			}
+			
+			//2.平移
+			outerloop: for (Position p : checkers.cset) {
+				// if(checkers.goal(p))
+				// continue;
 				for (Direction d : checkers.getMovable(p)) {
 					System.out.println(p + " " + d.name());
 					checkers.move(p, d);
-					count ++;
+					count++;
 					break outerloop;
 				}
 			}
-		}
+		} while (!checkers.isWin() && totalCount == 0);
+		
 		return count;
-	}
-
-	public final static void clearConsole() {
-		try {
-			final String os = System.getProperty("os.name");
-
-			if (os.contains("Windows")) {
-				Runtime.getRuntime().exec("cls");
-			} else {
-				Runtime.getRuntime().exec("clear");
-			}
-		} catch (final Exception e) {
-			// Handle any exceptions.
-		}
 	}
 }

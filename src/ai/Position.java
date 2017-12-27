@@ -1,6 +1,6 @@
 package ai;
 
-public class Position {
+public class Position implements Comparable<Position> {
 	public int x;
 	public int y;
 
@@ -13,16 +13,16 @@ public class Position {
 	public String toString() {
 		return String.format("(%d, %d)", x, y);
 	}
-
-	@Override
-	public boolean equals(Object that) {
-		return true;
-	}
 	
 	public boolean equals(Position p) {
 		if(this.x == p.x && this.y == p.y) {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public int compareTo(Position p) {
+		return this.x - p.x;
 	}
 }

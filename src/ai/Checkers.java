@@ -1,16 +1,15 @@
 package ai;
 
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.TreeSet;
 
 public class Checkers {
 
 	final int SIZE = 21;
 	int[][] map;
 
-	public Set<Position> cset = new HashSet<Position>();
+	public Set<Position> cset = new TreeSet<Position>();
 
 	public Checkers(int i) {
 		map = Chessboard.getBoard(i);
