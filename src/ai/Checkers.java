@@ -26,7 +26,6 @@ public class Checkers {
 				}
 			}
 		}
-		print();
 	}
 
 	// 判斷遊戲是否結束
@@ -38,50 +37,14 @@ public class Checkers {
 		return true;
 	}
 
-	// 取得目前所有棋子位置
-	public Set<Position> getCset() {
-		return cset;
-	}
-
-	// 得到所有可以移動的棋子
-	public Set<Position> getMovableCset() {
-		Set<Position> cset2 = cset.stream().filter((p) -> isMovable(p)).collect(Collectors.toSet());
-		return cset2;
-	}
-
-	// 得到所有可以跳躍的棋子
-	public Set<Position> getJumpableCset() {
-		Set<Position> cset2 = cset.stream().filter(p -> isJumpable(p)).collect(Collectors.toSet());
-		return cset2;
-	}
-
-	// 測試是否可以移動
-	public boolean isMovable(Position p) {
-		for (Direction d : Direction.values()) {
-			if (map[p.x + d.x][p.y + d.y] == 0 && !cset.contains(new Position(p.x + d.x, p.y + d.y))) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	// 測試是否可以跳躍
-	public boolean isJumpable(Position p) {
-		for (Direction d : Direction.values()) {
-			if (cset.contains(new Position(p.x + d.x, p.y + d.y)) && map[p.x + d.x * 2][p.y + d.y * 2] == 0
-					&& !cset.contains(new Position(p.x + d.x * 2, p.y + d.y * 2))) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	// 取得所有可以移動方向
 	public EnumSet<Direction> getMovable(Position p) {
 		EnumSet<Direction> ans = EnumSet.noneOf(Direction.class);
 		for (Direction d : Direction.values()) {
-			if (map[p.x + d.x][p.y + d.y] == 0 && !cset.contains(new Position(p.x + d.x, p.y + d.y))) {
-				ans.add(d);
+			if (map[p.x + d.x][p.y + d.y] == 0 || map[p.x + d.x][p.y + d.y] == 2) {
+				if (!have(p.x + d.x, p.y + d.y)) {
+					ans.add(d);
+				}
 			}
 		}
 		return ans;
@@ -101,14 +64,8 @@ public class Checkers {
 
 	// 移動棋子
 	public void move(Position p, Direction d) {
-		for(Position chess : cset) {
-			if(chess.equals(p)) {
-				chess.x = 0;
-				chess.y = 0;
-			}
-		}
-		//p.x += d.x;
-		//p.y += d.y;
+		p.x += d.x;
+		p.y += d.y;
 	}
 
 	// 跳躍棋子
@@ -124,8 +81,8 @@ public class Checkers {
 			}
 			for (int c = 0; c < SIZE; c++) {
 				System.out.print(' ');
-				if (cset.contains(new Position(r, c)))
-					colorPrint(1);
+				if (have(r, c))
+					System.out.print(1);
 				else
 					colorPrint(map[r][c]);
 			}
@@ -134,7 +91,6 @@ public class Checkers {
 	}
 
 	void colorPrint(int chess) {
-
 		switch (chess) {
 		case 0:
 			System.out.print("o");
@@ -148,10 +104,27 @@ public class Checkers {
 		case 3:
 			System.out.print("3");
 			break;
+		case 8:
+			System.out.print('h');
+			break;
 		case 9:
 			System.out.print(' ');
 			break;
 		}
+	}
+
+	public boolean have(int x, int y) {
+		for (Position p : cset) {
+			if (p.x == x && p.y == y)
+				return true;
+		}
+		return false;
+	}
+	
+	public boolean goal(Position p) {
+		if(map[p.x][p.y] == 2)
+				return true;
+		return false;
 	}
 
 }
