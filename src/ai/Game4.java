@@ -1,28 +1,36 @@
 package ai;
 
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+
+import ai.Game4.Node;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Game4 {
-	public int [][] map = new int[17][17];
-	public List<Integer> chess = new ArrayList<Integer>();
+	public int[][] map = new int[21][21];
+	public List<int[]> chess = new ArrayList<int[]>();
+	public List<List<int[]>> fail = new ArrayList<List<int[]>>();
+	
 	//輸入棋子位置
 	public Game4() {
-		//23 24 32 33 34 42 43
-		chess.add(2);chess.add(3);
-		chess.add(2);chess.add(4);
-		chess.add(3);chess.add(2);
-		chess.add(3);chess.add(3);
-		chess.add(3);chess.add(4);
-		chess.add(4);chess.add(2);
-		chess.add(4);chess.add(3);
+		chess.add(new int[]{2,3});
+		chess.add(new int[]{2,4});
+		chess.add(new int[]{3,2});
+		chess.add(new int[]{3,3});
+		chess.add(new int[]{3,4});
+		chess.add(new int[]{4,2});
+		chess.add(new int[]{4,3});
 	}
 	//棋盤範圍
 	public enum position{
 		P1(-4,8),P2(-4,7),P3(-3,7),P4(-4,6),P5(-3,6),P6(-2,6),P7(-4,5),P8(-3,5),P9(-2,5),P10(-1,5),
-		P11(-8,4),P12(-7,4),P13(-6,4),P14(-5,4),P15(-4,4),P16(-3,4),P17(-2,4),P18(-1,4),P121(0,4),P122(1,4),P19(2,4),P20(3,4),
+		P11(-8,4),P12(-7,4),P13(-6,4),P14(-5,4),P15(-4,4),P16(-3,4),P17(-2,4),P18(-1,4),P19(2,4),P20(3,4),
 		P21(4,4),P22(-7,3),P23(-6,3),P24(-5,3),P25(-4,3),P26(-3,3),P27(-2,3),P28(-1,3),P29(0,3),P30(1,3),
-		P32(2,3),P33(3,3),P34(4,3),P35(-6,2),P36(-5,2),P37(-4,2),P38(-3,2),P39(-2,2),P40(-1,2),
+		P31(0,4),P32(2,3),P33(3,3),P34(4,3),P35(-6,2),P36(-5,2),P37(-4,2),P38(-3,2),P39(-2,2),P40(-1,2),
 		P41(0,2),P42(1,2),P43(2,2),P44(3,2),P45(4,2),P46(-5,1),P47(-4,1),P48(-3,1),P49(-2,1),P50(-1,1),
 		P51(0,1),P52(1,1),P53(2,1),P54(3,1),P55(4,1),P56(-4,0),P57(-3,0),P58(-2,0),P59(-1,0),P60(0,0),
 		P61(1,0),P62(2,0),P63(3,0),P64(4,0),P65(-4,-1),P66(-3,-1),P67(-2,-1),P68(-1,-1),P69(0,-1),P70(1,-1),
@@ -30,7 +38,7 @@ public class Game4 {
 		P81(2,-2),P82(3,-2),P83(4,-2),P84(5,-2),P85(6,-2),P86(-4,-3),P87(-3,-3),P88(-2,-3),P89(-1,-3),P90(0,-3),
 		P91(1,-3),P92(2,-3),P93(3,-3),P94(4,-3),P95(5,-3),P96(6,-3),P97(7,-3),P98(-4,-4),P99(-3,-4),P100(-2,-4),
 		P101(-1,-4),P102(0,-4),P103(1,-4),P104(2,-4),P105(3,-4),P106(4,-4),P107(5,-4),P108(6,-4),P109(7,-4),P110(8,-4),
-		P111(1,-5),P112(2,-5),P113(3,-5),P114(4,-5),P115(2,-6),P116(3,-6),P117(4,-6),P118(3,-7),P119(4,-7),P120(4,-8);
+		P111(1,-5),P112(2,-5),P113(3,-5),P114(4,-5),P115(2,-6),P116(3,-6),P117(4,-6),P118(3,-7),P119(4,-7),P120(4,-8),P121(1,4);
 		private int x, y;
 		private position(int x, int y) {
 			this.x = x;
@@ -46,10 +54,13 @@ public class Game4 {
 			this.x = x;
 			this.y = y;
 		}
+		
 	}
 	//移動方向
 	public enum direction{
-		LEFT(-1,0),LEFTUP(-1,1),LEFTDOMN(0,-1),RIGHT(1,0),RIGHTUP(0,1),RIGHTDOWN(1,-1);
+		LEFT(-1,0),LEFTUP(-1,1)
+		,LEFTDOMN(0,-1),RIGHT(1,0),RIGHTUP(0,1)
+		,RIGHTDOWN(1,-1);
 		private int x,y;
 		private direction(int x , int y) {
 			this.x = x;
@@ -58,103 +69,169 @@ public class Game4 {
 	}
 	//跳躍方向
 	public enum Jdirection{
-		LEFT(-2,0),LEFTUP(-2,2),LEFTDOMN(0,-2),RIGHT(2,0),RIGHTUP(0,2),RIGHTDOWN(2,-2);
+		LEFT(-2,0),LEFTUP(-2,2)
+		,LEFTDOMN(0,-2),RIGHT(2,0),RIGHTUP(0,2)
+		,RIGHTDOWN(2,-2);
 		private int x,y;
 		private Jdirection(int x , int y) {
 			this.x = x;
 			this.y = y;
 		};
 	}
-	//開始
-	public void start() {
-		loadmap();
-		bfs(map,0);
-	}
 	//下載地圖
 	public void loadmap() {
 		for(position p : position.values()) {
-			map[p.y+8][p.x+8] = 1;
+			map[p.x+10][p.y+10] = 1;
 		}
+	}
+	//下載目標位置
+	public void loadtarget() {
 		for(target t : target.values()) {
-			map[t.y+8][t.x+8] = 7;
+			map[t.x+10][t.y+10] = 1;
 		}
-		for(int i = 0; i < chess.size()/2 ; i++) {
-			map[chess.get(i*2+1) + 8][chess.get(i*2) + 8] = 3;
+	}
+	//下載棋子位置
+	public void loadchess(List<int[]> c, int[][] m) {
+		for(int[] cc : c) {
+			m[cc[0]+10][cc[1]+10]+=2;
+		}
+	}
+	//開始
+	public void start() {
+		loadmap();
+		loadtarget();
+		bfs(chess);
+	}
+	//Node Class
+	public class Node {
+		List<int[]> c = new ArrayList<int[]>();
+		List<List<int[]>> r = new ArrayList<List<int[]>>();
+		int g;
+		int h;
+		public Node(List<int[]> c,int g,int h) {
+			c.sort((a1,a2)->(a1[1] - a2[1]));
+			c.sort((a1,a2)->(a1[0] - a2[0]));
+			this.c=c;
+			this.g=g;
+			this.h=h;
 		}
 	}
 	//Search
-	public void bfs(int[][] m,int count) {
-		if(finish(m)) {
-			System.out.print(m);
-		}
-		int [][] m2 = m.clone();
-		for(int i = 16 ; i >= 0 ; i--) {
-			for(int j = 0 ; j <= 16 ; j++) {
-				if(m2[j][i] == 3) {
-					for(direction d : isMovable(j,i,m2)) {
-						bfs(move(j,i,d,m2),count+1);
-					}
-					for(Jdirection jd : isJumpable(j,i,m2)) {
-						bfs(jump(j,i,jd,m2),count+1);
-					}
-				}
+	public void bfs(List<int[]> c) {
+		
+		Queue<Node> queue = new PriorityQueue<Node>(1000,(n1,n2)->n1.h - n2.h);
+		queue.add(new Node(c,0,0));
+		int[][] m = new int[21][21];
+		
+		while(!queue.isEmpty()) {
+			for(int i = 0; i < 21; i++){ //複製地圖
+				m[i] = map[i].clone();
 			}
-		}
-	}
-	//輸出地圖
-	public void printGraph(int[][] m) {
-		for(int i = 16 ; i >= 0 ; i--) {
-			for(int j = 0 ; j <= 16 ; j++) {
-				System.out.print(m[j][i]);
+			Node node = queue.remove(); //移除第一個node
+			loadchess(node.c,m); //下載棋子
+			
+			if(finish(m) == chess.size()) {
+				printRoad(node.r);
+				printGraph(m);
+				break;
 			}
-			System.out.println();
+			fail.add(node.c);
+			
+			Map<int[],List<int[]>> d = new HashMap<int[],List<int[]>>();
+			Map<int[],List<int[]>> jd = new HashMap<int[],List<int[]>>();
+			
+			for(int[] cc : node.c) {
+				d.put(cc, isMovable(cc,m));
+				jd.put(cc, isJumpable(cc,m));
+			}
+			jd.forEach((k,v)->v.forEach(e -> queue.add( getNewNode(node,k,e,m) )));
+			d.forEach((k,v)->v.forEach(e -> queue.add( getNewNode(node,k,e,m) )));
 		}
 	}
 	//可移動方向
-	public List<direction> isMovable(int x,int y,int[][] m) {
-		List<direction> dl = new ArrayList<direction>();
+	public List<int[]> isMovable(int[] p,int[][] m) {
+		List<int[]> dl = new ArrayList<int[]>();
 		for (direction d : direction.values()) {
-			if(m[y+d.y][x+d.x] == 1) {
-				dl.add(d);
+			if(m[p[0]+d.x+10][p[1]+d.y+10] == 1) {
+				dl.add(new int[]{p[0]+d.x,p[1]+d.y});
 			}
 		}
 		return dl;
 	}
-	//移動
-	public int[][] move(int x, int y, direction d,int[][] m) {
-		int[][] m2 = m.clone();
-		m2[y][x] -= 2;
-		m2[y+d.y][x+d.x] += 2;
-		return m2;
-	}
 	//可跳躍方向
-	public List<Jdirection> isJumpable(int x,int y,int[][] m) {
-		List<Jdirection> jdl = new ArrayList<Jdirection>();
+	public List<int[]> isJumpable(int[] p, int[][] m) {
+		List<int[]> jdl = new ArrayList<int[]>();
 		for (Jdirection jd : Jdirection.values()) {
-			if(m[y+jd.y][x+jd.x] == 1 && m[y+jd.y/2][x+jd.x/2] == 3) {
-				jdl.add(jd);
+			if(m[p[0]+jd.x+10][p[1]+jd.y+10] == 1 && m[p[0]+jd.x/2+10][p[1]+jd.y/2+10] == 3) {
+				jdl.add(new int[]{p[0]+jd.x,p[1]+jd.y});
 			}
 		}
 		return jdl;
 	}
-	//跳誒
-	public int[][] jump(int x, int y, Jdirection jd,int[][] m) {
-		int[][] m2 = m.clone();
-		m[y][x] -= 2;
-		m[y+jd.y][x+jd.x] += 2;
-		return m2;
+	//可移動方向
+	public Node getNewNode(Node oldn, int[] oldp , int[] newp , int[][] m) {
+		List<int[]> r = new ArrayList<int[]>();
+		List<int[]> cl = new ArrayList<int[]>(oldn.c);
+		cl.set(cl.indexOf(oldp), newp);
+		Node n = new Node(cl,oldn.g+1,h(cl, m));
+		r.add(oldp);
+		r.add(newp);
+		n.r.addAll(oldn.r);
+		n.r.add(r);
+		return n;
+	}
+	//h()
+	public int h(List<int[]> c, int[][] m) {
+		int h = 0;
+		for(int[] cc : c) {
+			h += (cc[0]+cc[1]+4 > 0 ? cc[0]+cc[1]+4 //: 0); //68步
+					: (cc[0]+cc[1]+5 > 0 ? cc[0]+cc[1]+5 //: 0)); //51步
+							: (cc[0]+cc[1]+6 > 0 ? cc[0]+cc[1]+6 : 0))); //47步
+									//: (cc[0]+cc[1]+7 > 0 ? cc[0]+cc[1]+7 : 0)))); //50步
+			h -= finish(m);
+		}
+		return h;
 	}
 	//結束
-	public boolean finish(int[][] m) {
+	public int finish(int[][] m) {
 		int count = 0;
 		for(target t : target.values()) {
-			if(m[t.y+8][t.x+8] == 9) {
+			if(m[t.x+10][t.y+10] == 3) {
 				count += 1;
 			}
 		}
-		if(count == chess.size()/2) {
-			return true;
+		return count;
+	}
+	//輸出路線
+	public void printRoad(List<List<int[]>> r) {
+		System.out.print("========================");
+		int[] x = null;
+		int[] y = null;
+		int count = 0;
+		for(List<int[]> l : r) {
+			x = l.get(0);
+			if(x == y) {
+				System.out.print("("+l.get(1)[0]+","+l.get(1)[1]+")");
+				y = l.get(1);
+			}
+			else {
+				count += 1;
+				System.out.println();
+				for(int[] i : l) {
+					System.out.print("("+i[0]+","+i[1]+")");
+				}
+				y = l.get(1);
+			}
 		}
-		return false;
+		System.out.println("\n總計 "+count+" 步");
+	}
+	//輸出地圖
+	public void printGraph(int[][] m) {
+		for(int j = 20 ; j > 0 ; j--) {
+			for(int i = 0 ; i <= 20 ; i++) {
+				System.out.print(m[i][j]);
+			}
+			System.out.println();
+		}
 	}
 }
