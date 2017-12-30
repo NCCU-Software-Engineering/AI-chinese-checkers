@@ -6,42 +6,50 @@ import java.util.TreeSet;
 
 public class Checkers {
 
-	final int SIZE = 21;
-	int[][] map;
+	private static final int SIZE = 21;
+	private static final int[][] map = Chessboard.map1;
 
-	public Set<Position> cset = new TreeSet<Position>();
+	// 取得最開始的cset
+	public static Set<Position> init() {
+		int[][] map = Chessboard.mapInit;
+		int id = 0;
+		Set<Position> cset = new TreeSet<Position>();
 
-	public Checkers(int i) {
-		map = Chessboard.getBoard(i);
-	}
-
-	public void start() {
-		// 讀取地圖
 		for (int r = 0; r < SIZE; r++) {
 			for (int c = 0; c < SIZE; c++) {
 				if (map[r][c] == 1) {
-					map[r][c] = 0;
-					cset.add(new Position(r, c));
+					cset.add(new Position(id++, r, c));
 				}
 			}
 		}
+		return cset;
+	}
+
+	// 區得遊戲進度 70時完成
+	public static int gatProgress(Set<Position> cset) {
+		int i = 0;
+		for (Position p : cset) {
+			i += p.x;
+		}
+		return i;
 	}
 
 	// 判斷遊戲是否結束
-	public boolean isWin() {
-		for (Position p : cset) {
-			if (map[p.x][p.y] != 2)
-				return false;
+	public static boolean isWin(Set<Position> cset) {
+		if (gatProgress(cset) == 70) {
+			System.out.println("贏了耶");
+			return true;
+		} else {
+			return false;
 		}
-		return true;
 	}
 
 	// 取得所有可以移動方向
-	public EnumSet<Direction> getMovable(Position p) {
+	public static EnumSet<Direction> getMovable(Set<Position> cset, Position p, int i) {
 		EnumSet<Direction> ans = EnumSet.noneOf(Direction.class);
-		for (Direction d : Direction.values()) {
+		for (Direction d : Direction.values(i)) {
 			if (map[p.x + d.x][p.y + d.y] == 0 || map[p.x + d.x][p.y + d.y] == 2) {
-				if (!have(p.x + d.x, p.y + d.y)) {
+				if (!have(cset, p.x + d.x, p.y + d.y)) {
 					ans.add(d);
 				}
 			}
@@ -50,37 +58,52 @@ public class Checkers {
 	}
 
 	// 取得所有可以跳躍方向
-	public EnumSet<Direction> getJumpable(Position p) {
+	public static EnumSet<Direction> getJumpable(Set<Position> cset, Position p, int i) {
 		EnumSet<Direction> ans = EnumSet.noneOf(Direction.class);
-		for (Direction d : Direction.values()) {
-			if (cset.contains(new Position(p.x + d.x, p.y + d.y)) && map[p.x + d.x * 2][p.y + d.y * 2] == 0
-					&& !cset.contains(new Position(p.x + d.x * 2, p.y + d.y * 2))) {
-				ans.add(d);
+		for (Direction d : Direction.values(i)) {
+			if (map[p.x + d.x * 2][p.y + d.y * 2] == 0 || map[p.x + d.x * 2][p.y + d.y * 2] == 2) {
+				if (have(cset, p.x + d.x, p.y + d.y) && !have(cset, p.x + d.x * 2, p.y + d.y * 2)) {
+					ans.add(d);
+				}
 			}
 		}
 		return ans;
 	}
 
 	// 移動棋子
-	public void move(Position p, Direction d) {
-		p.x += d.x;
-		p.y += d.y;
+	public static Set<Position> move(Set<Position> cset, Position pos, Direction d) {
+		Set<Position> newSet = new TreeSet<Position>();
+		for(Position p: cset) {
+			if(p == pos) 
+				newSet.add(new Position(p.id, p.x + d.x, p.y + d.y));
+			else
+				newSet.add(new Position(p.id, p.x, p.y));
+				
+		}
+		return newSet;
 	}
 
 	// 跳躍棋子
-	public void jump(Position p, Direction d) {
-		p.x += d.x * 2;
-		p.y += d.y * 2;
+	public static Set<Position> jump(Set<Position> cset, Position pos, Direction d) {
+		Set<Position> newSet = new TreeSet<Position>();
+		for(Position p: cset) {
+			if(p == pos) 
+				newSet.add(new Position(p.id, p.x + d.x *2, p.y + d.y*2));
+			else
+				newSet.add(new Position(p.id, p.x, p.y));
+				
+		}
+		return newSet;
 	}
 
-	void print() {
+	static void print(Set<Position> cset) {
 		for (int r = 0; r < SIZE; r++) {
 			for (int s = 0; s < SIZE - r; s++) {
 				System.out.print(' ');
 			}
 			for (int c = 0; c < SIZE; c++) {
 				System.out.print(' ');
-				if (have(r, c))
+				if (have(cset, r, c))
 					System.out.print(1);
 				else
 					colorPrint(map[r][c]);
@@ -89,7 +112,7 @@ public class Checkers {
 		}
 	}
 
-	void colorPrint(int chess) {
+	static void colorPrint(int chess) {
 		switch (chess) {
 		case 0:
 			System.out.print("o");
@@ -112,17 +135,11 @@ public class Checkers {
 		}
 	}
 
-	public boolean have(int x, int y) {
+	public static boolean have(Set<Position> cset, int x, int y) {
 		for (Position p : cset) {
 			if (p.x == x && p.y == y)
 				return true;
 		}
-		return false;
-	}
-	
-	public boolean goal(Position p) {
-		if(map[p.x][p.y] == 2)
-				return true;
 		return false;
 	}
 
