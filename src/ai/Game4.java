@@ -184,10 +184,11 @@ public class Game4 {
 	public int h(List<int[]> c, int[][] m) {
 		int h = 0;
 		for(int[] cc : c) {
-			h += (cc[0]+cc[1]+4 > 0 ? cc[0]+cc[1]+4 //: 0); //68步
-					: (cc[0]+cc[1]+5 > 0 ? cc[0]+cc[1]+5 //: 0)); //51步
-							: (cc[0]+cc[1]+6 > 0 ? cc[0]+cc[1]+6 : 0))); //47步
-									//: (cc[0]+cc[1]+7 > 0 ? cc[0]+cc[1]+7 : 0)))); //50步
+			h += (cc[0]+cc[1]+4 > 0 ? cc[0]+cc[1]+4 //: 0); //58步
+					: (cc[0]+cc[1]+5 > 0 ? cc[0]+cc[1]+5 //: 0)); //75步
+							: (cc[0]+cc[1]+6 > 0 ? cc[0]+cc[1]+6 : 0))); //59步
+									//: (cc[0]+cc[1]+7 > 0 ? cc[0]+cc[1]+7 //: 0)))); //69步
+											//: (cc[0]+cc[1]+8 > 0 ? cc[0]+cc[1]+8 //: 0))))); //64步
 			h -= finish(m);
 		}
 		return h;
@@ -202,26 +203,37 @@ public class Game4 {
 		}
 		return count;
 	}
-	//輸出路線
+	//輸出路線&計算步數
 	public void printRoad(List<List<int[]>> r) {
 		System.out.print("========================");
 		int[] x = null;
 		int[] y = null;
+		boolean jump = false;
 		int count = 0;
 		for(List<int[]> l : r) {
+			count += 1;
 			x = l.get(0);
-			if(x == y) {
-				System.out.print("("+l.get(1)[0]+","+l.get(1)[1]+")");
-				y = l.get(1);
+			if((l.get(0)[0] - l.get(1)[0]) / 2 != 0 || (l.get(0)[1] - l.get(1)[1]) / 2 != 0) {
+				if(x == y && jump) {
+					System.out.print("("+l.get(1)[0]+","+l.get(1)[1]+")");
+					count -= 1;
+				}
+				else {
+					System.out.println();
+					for(int[] i : l) {
+						System.out.print("("+i[0]+","+i[1]+")");
+					}
+				}
+				jump = true;
 			}
 			else {
-				count += 1;
 				System.out.println();
 				for(int[] i : l) {
 					System.out.print("("+i[0]+","+i[1]+")");
 				}
-				y = l.get(1);
+				jump = false;
 			}
+			y = l.get(1);
 		}
 		System.out.println("\n總計 "+count+" 步");
 	}

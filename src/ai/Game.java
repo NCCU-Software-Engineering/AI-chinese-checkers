@@ -101,5 +101,9 @@ public class Game {
 		Checkers.print(ans.peek());
 		System.out.printf("完成第一題\n");
 		System.out.printf("最少跳了%d步\n", totalCount);
+
+		/*System.out.println("丁");
+		Game4 g4 = new Game4();
+		g4.start();*/
 	}
 }
