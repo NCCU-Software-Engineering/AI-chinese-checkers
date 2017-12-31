@@ -1,11 +1,12 @@
 package ai;
 
+
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import ai.Game4.Node;
+import ai.Game3.Node;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -14,14 +15,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Game4 {
+
+public class Game3 {
 	public int[][] map = new int[21][21];
 	public List<int[]> chess = new ArrayList<int[]>();
+	public List<int[]> obstacle = new ArrayList<int[]>();
 	public List<List<int[]>> fail = new ArrayList<List<int[]>>();
 	
 	//輸入棋子位置
-	public Game4() throws IOException {
-		FileReader fr = new FileReader("initial.txt"); 
+	public Game3() throws IOException {
+		FileReader fr = new FileReader("obstacle.txt"); 
 		BufferedReader br = new BufferedReader(fr);
 		String s;
 		String[] ss;
@@ -29,16 +32,13 @@ public class Game4 {
 		for(int i = 0 ; i < total ; i++) {
 			s = br.readLine();
 			ss = s.substring(1, s.length()-1).split(",");
-			chess.add(new int[] {Integer.parseInt(ss[0]),Integer.parseInt(ss[1])});
+			obstacle.add(new int[] {Integer.parseInt(ss[0]),Integer.parseInt(ss[1])});
 		}
 		fr.close();
-		/*chess.add(new int[]{2,3});
-		chess.add(new int[]{2,4});
-		chess.add(new int[]{3,2});
-		chess.add(new int[]{3,3});
-		chess.add(new int[]{3,4});
-		chess.add(new int[]{4,2});
-		chess.add(new int[]{4,3});*/
+		
+		for(starting st : starting.values()) {
+			chess.add(new int[] {st.x,st.y});
+		}
 	}
 	//棋盤範圍
 	public enum position{
@@ -60,16 +60,25 @@ public class Game4 {
 			this.y = y;
 		}
 	}
+	//棋子起點
+	public enum starting{
+		S1(4,-8),S2(4,-7),S3(3,-7),S4(4,-6),S5(3,-6),S6(2,-6),S7(4,-5),S8(3,-5),S9(2,-5),S10(1,-5),
+		S11(4,-4),S12(3,-4),S13(2,-4),S14(1,-4),S15(0,-4);
+		private int x, y;
+		private starting(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
 	//目標位置
 	public enum target{
-		T1(-4,0),T2(-4,-1),T3(-3,-1),T4(-4,-2),T5(-3,-2),T6(-2,-2),T7(-4,-3),T8(-3,-3),T9(-2,-3),T10(-1,-3),
-		T11(-4,-4),T12(-3,-4),T13(-2,-4),T14(-1,-4),T15(0,-4);
+		T1(-4,8),T2(-4,7),T3(-3,7),T4(-4,6),T5(-3,6),T6(-2,6),T7(-4,5),T8(-3,5),T9(-2,5),T10(-1,5),
+		T11(-4,4),T12(-3,4),T13(-2,4),T14(-1,4),T15(0,4);
 		private int x, y;
 		private target(int x, int y) {
 			this.x = x;
 			this.y = y;
 		}
-		
 	}
 	//移動方向
 	public enum direction{
@@ -99,6 +108,12 @@ public class Game4 {
 			map[p.x+10][p.y+10] = 1;
 		}
 	}
+	//下載障礙
+	public void loadobstacle() {
+		for(int[] p : obstacle) {
+			map[p[0]+10][p[1]+10] = 3;
+		}
+	}
 	//下載棋子位置
 	public void loadchess(List<int[]> c, int[][] m) {
 		for(int[] cc : c) {
@@ -108,6 +123,7 @@ public class Game4 {
 	//開始
 	public void start() throws IOException {
 		loadmap();
+		loadobstacle();
 		bfs(chess);
 	}
 	//Node Class
@@ -137,7 +153,7 @@ public class Game4 {
 			}
 			Node node = queue.remove(); //移除第一個node
 			loadchess(node.c,m); //下載棋子
-			
+
 			if(finish(m) == chess.size()) {
 				printRoad(node.r);
 				//printGraph(m);
@@ -195,12 +211,9 @@ public class Game4 {
 			return 9999;
 		}
 		for(int[] cc : c) {
-			h += (cc[0]+cc[1]+4 > 0 ? cc[0]+cc[1]+4 //: 0); 
-					: (cc[0]+cc[1]+5 > 0 ? cc[0]+cc[1]+5 //: 0)); 
-							: (cc[0]+cc[1]+6 > 0 ? cc[0]+cc[1]+6 : 0))); 
-									//: (cc[0]+cc[1]+7 > 0 ? cc[0]+cc[1]+7 : 0)))); 
-											//: (cc[0]+cc[1]+8 > 0 ? cc[0]+cc[1]+8 //: 0))))); 
-		}
+			h += 7-cc[1] > 0 ? 7-cc[1] : 0;
+			h += (cc[0] - cc[1] * -1 / 2) > 0 ? (cc[0] - cc[1] * -1 / 2)  : (cc[0] - cc[1] * -1 / 2) * -1; 
+		} 
 		h -= finish(m);
 		return h;
 	}
@@ -247,7 +260,7 @@ public class Game4 {
 			}
 			y = l.get(1);
 		}
-		FileWriter fw = new FileWriter("result4.txt");
+		FileWriter fw = new FileWriter("result3.txt");
 		fw.write("總計 "+count+" 步" + output);
 		fw.close();
 	}

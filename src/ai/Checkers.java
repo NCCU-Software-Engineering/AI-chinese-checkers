@@ -1,8 +1,6 @@
 package ai;
 
 import java.util.EnumSet;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class Checkers {
 
@@ -10,10 +8,10 @@ public class Checkers {
 	private static final int[][] map = Chessboard.map1;
 
 	// 取得最開始的chessSet
-	public static Set<Chess> init() {
+	public static MySet init() {
 		int[][] map = Chessboard.mapInit;
 		int id = 0;
-		Set<Chess> chessSet = new TreeSet<Chess>();
+		MySet chessSet = new MySet();
 
 		for (int x = 0; x < SIZE; x++) {
 			for (int y = 0; y < SIZE; y++) {
@@ -26,7 +24,7 @@ public class Checkers {
 	}
 
 	// 區得遊戲進度 70時完成
-	public static int gatProgress(Set<Chess> chessSet) {
+	public static int gatProgress(MySet chessSet) {
 		int progress = 0;
 		for (Chess c : chessSet) {
 			progress += c.x;
@@ -35,7 +33,7 @@ public class Checkers {
 	}
 
 	// 判斷遊戲是否結束
-	public static boolean isWin(Set<Chess> chessSet) {
+	public static boolean isWin(MySet chessSet) {
 		if (gatProgress(chessSet) == 70) {
 			return true;
 		} else {
@@ -44,7 +42,7 @@ public class Checkers {
 	}
 
 	// 取得所有可以移動方向
-	public static EnumSet<Direction> getMovable(Set<Chess> chessSet, Chess c, int i) {
+	public static EnumSet<Direction> getMovable(MySet chessSet, Chess c, int i) {
 		EnumSet<Direction> ans = EnumSet.noneOf(Direction.class);
 		for (Direction d : Direction.values(i)) {
 			if (map[c.x + d.x][c.y + d.y] == 0 || map[c.x + d.x][c.y + d.y] == 2) {
@@ -57,7 +55,7 @@ public class Checkers {
 	}
 
 	// 取得所有可以跳躍方向
-	public static EnumSet<Direction> getJumpable(Set<Chess> chessSet, Chess c, int i) {
+	public static EnumSet<Direction> getJumpable(MySet chessSet, Chess c, int i) {
 		EnumSet<Direction> ans = EnumSet.noneOf(Direction.class);
 		for (Direction d : Direction.values(i)) {
 			if (map[c.x + d.x * 2][c.y + d.y * 2] == 0 || map[c.x + d.x * 2][c.y + d.y * 2] == 2) {
@@ -70,8 +68,8 @@ public class Checkers {
 	}
 
 	// 移動棋子
-	public static Set<Chess> move(Set<Chess> chessSet, int id, Direction d) {
-		Set<Chess> newSet = new TreeSet<Chess>();
+	public static MySet move(MySet chessSet, int id, Direction d) {
+		MySet newSet = new MySet();
 		for(Chess c: chessSet) {
 			if(c.id == id) 
 				newSet.add(new Chess(c.id, c.x + d.x, c.y + d.y));
@@ -79,12 +77,13 @@ public class Checkers {
 				newSet.add(new Chess(c.id, c.x, c.y));
 				
 		}
+		newSet.setLast(id, d);
 		return newSet;
 	}
 
 	// 跳躍棋子
-	public static Set<Chess> jump(Set<Chess> chessSet, int id, Direction d) {
-		Set<Chess> newSet = new TreeSet<Chess>();
+	public static MySet jump(MySet chessSet, int id, Direction d) {
+		MySet newSet = new MySet();
 		for(Chess c: chessSet) {
 			if(c.id == id) 
 				newSet.add(new Chess(c.id, c.x + d.x *2, c.y + d.y*2));
@@ -92,19 +91,20 @@ public class Checkers {
 				newSet.add(new Chess(c.id, c.x, c.y));
 				
 		}
+		newSet.setLast(id, d);
 		return newSet;
 	}
 	
 	// 複製
-	public static Set<Chess> clone(Set<Chess> chessSet) {
-		Set<Chess> newSet = new TreeSet<Chess>();
+	public static MySet clone(MySet chessSet) {
+		MySet newSet = new MySet();
 		for(Chess c: chessSet) {
 			newSet.add(new Chess(c.id, c.x, c.y));
 		}
 		return newSet;
 	}
 
-	public static boolean have(Set<Chess> chessSet, int x, int y) {
+	public static boolean have(MySet chessSet, int x, int y) {
 		for (Chess p : chessSet) {
 			if (p.x == x && p.y == y)
 				return true;
@@ -112,7 +112,7 @@ public class Checkers {
 		return false;
 	}
 	
-	static void print(Set<Chess> chessSet) {
+	static void print(MySet chessSet) {
 		for (int x = 0; x < SIZE; x++) {
 			for (int s = 0; s < SIZE - x; s++) {
 				System.out.print(' ');
