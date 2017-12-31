@@ -7,6 +7,10 @@ import java.util.Queue;
 
 import ai.Game4.Node;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,14 +20,25 @@ public class Game4 {
 	public List<List<int[]>> fail = new ArrayList<List<int[]>>();
 	
 	//輸入棋子位置
-	public Game4() {
-		chess.add(new int[]{2,3});
+	public Game4() throws IOException {
+		FileReader fr = new FileReader("initial.txt"); 
+		BufferedReader br = new BufferedReader(fr);
+		String s;
+		String[] ss;
+		int total = Integer.parseInt(br.readLine());
+		for(int i = 0 ; i < total ; i++) {
+			s = br.readLine();
+			ss = s.substring(1, s.length()-1).split(",");
+			chess.add(new int[] {Integer.parseInt(ss[0]),Integer.parseInt(ss[1])});
+		}
+		fr.close();
+		/*chess.add(new int[]{2,3});
 		chess.add(new int[]{2,4});
 		chess.add(new int[]{3,2});
 		chess.add(new int[]{3,3});
 		chess.add(new int[]{3,4});
 		chess.add(new int[]{4,2});
-		chess.add(new int[]{4,3});
+		chess.add(new int[]{4,3});*/
 	}
 	//棋盤範圍
 	public enum position{
@@ -97,7 +112,7 @@ public class Game4 {
 		}
 	}
 	//開始
-	public void start() {
+	public void start() throws IOException {
 		loadmap();
 		loadtarget();
 		bfs(chess);
@@ -117,7 +132,7 @@ public class Game4 {
 		}
 	}
 	//Search
-	public void bfs(List<int[]> c) {
+	public void bfs(List<int[]> c) throws IOException {
 		
 		Queue<Node> queue = new PriorityQueue<Node>(1000,(n1,n2)->n1.h - n2.h);
 		queue.add(new Node(c,0,0));
@@ -132,7 +147,7 @@ public class Game4 {
 			
 			if(finish(m) == chess.size()) {
 				printRoad(node.r);
-				printGraph(m);
+				//printGraph(m);
 				break;
 			}
 			fail.add(node.c);
@@ -168,7 +183,7 @@ public class Game4 {
 		}
 		return jdl;
 	}
-	//可移動方向
+	//新node
 	public Node getNewNode(Node oldn, int[] oldp , int[] newp , int[][] m) {
 		List<int[]> r = new ArrayList<int[]>();
 		List<int[]> cl = new ArrayList<int[]>(oldn.c);
@@ -204,38 +219,41 @@ public class Game4 {
 		return count;
 	}
 	//輸出路線&計算步數
-	public void printRoad(List<List<int[]>> r) {
+	public void printRoad(List<List<int[]>> r) throws IOException {
 		System.out.print("========================");
 		int[] x = null;
 		int[] y = null;
 		boolean jump = false;
 		int count = 0;
+		String output = "";
 		for(List<int[]> l : r) {
 			count += 1;
 			x = l.get(0);
 			if((l.get(0)[0] - l.get(1)[0]) / 2 != 0 || (l.get(0)[1] - l.get(1)[1]) / 2 != 0) {
 				if(x == y && jump) {
-					System.out.print("("+l.get(1)[0]+","+l.get(1)[1]+")");
+					output += "("+l.get(1)[0]+","+l.get(1)[1]+");";
 					count -= 1;
 				}
 				else {
-					System.out.println();
+					output += "\n";
 					for(int[] i : l) {
-						System.out.print("("+i[0]+","+i[1]+")");
+						output += "("+i[0]+","+i[1]+");";
 					}
 				}
 				jump = true;
 			}
 			else {
-				System.out.println();
+				output += "\n";
 				for(int[] i : l) {
-					System.out.print("("+i[0]+","+i[1]+")");
+					output += "("+i[0]+","+i[1]+");";
 				}
 				jump = false;
 			}
 			y = l.get(1);
 		}
-		System.out.println("\n總計 "+count+" 步");
+		FileWriter fw = new FileWriter("result4.txt");
+		fw.write("總計 "+count+" 步" + output);
+		fw.close();
 	}
 	//輸出地圖
 	public void printGraph(int[][] m) {
