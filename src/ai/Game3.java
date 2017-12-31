@@ -20,7 +20,7 @@ public class Game3 {
 	public int[][] map = new int[21][21];
 	public List<int[]> chess = new ArrayList<int[]>();
 	public List<int[]> obstacle = new ArrayList<int[]>();
-	public List<List<int[]>> fail = new ArrayList<List<int[]>>();
+	public Node answer;
 	
 	//輸入棋子位置
 	public Game3() throws IOException {
@@ -130,8 +130,8 @@ public class Game3 {
 	public class Node {
 		List<int[]> c = new ArrayList<int[]>();
 		List<List<int[]>> r = new ArrayList<List<int[]>>();
-		int g;
-		int h;
+		int g = 0;
+		int h = 0;
 		public Node(List<int[]> c,int g,int h) {
 			c.sort((a1,a2)->(a1[1] - a2[1]));
 			c.sort((a1,a2)->(a1[0] - a2[0]));
@@ -142,24 +142,24 @@ public class Game3 {
 	}
 	//Search
 	public void bfs(List<int[]> c) throws IOException {
-		
-		Queue<Node> queue = new PriorityQueue<Node>(1000,(n1,n2)->n1.h - n2.h);
+		//(n1.g - n2.g) (n1.h - n2.h) (n1.g + n1.h) - (n2.g + n2.h));
+		Queue<Node> queue = new PriorityQueue<Node>(10000,(n1,n2)->(n1.h - n2.h));
 		queue.add(new Node(c,0,0));
 		int[][] m = new int[21][21];
-		
 		while(!queue.isEmpty()) {
 			for(int i = 0; i < 21; i++){ //複製地圖
 				m[i] = map[i].clone();
 			}
 			Node node = queue.remove(); //移除第一個node
 			loadchess(node.c,m); //下載棋子
+			System.out.println(node.g);
 
 			if(finish(m) == chess.size()) {
 				printRoad(node.r);
 				//printGraph(m);
+				answer = node;
 				break;
 			}
-			fail.add(node.c);
 			
 			Map<int[],List<int[]>> d = new HashMap<int[],List<int[]>>();
 			Map<int[],List<int[]>> jd = new HashMap<int[],List<int[]>>();
@@ -171,6 +171,8 @@ public class Game3 {
 			jd.forEach((k,v)->v.forEach(e -> queue.add( getNewNode(node,k,e,m) )));
 			d.forEach((k,v)->v.forEach(e -> queue.add( getNewNode(node,k,e,m) )));
 		}
+		printRoad(answer.r);
+		System.out.println("game 3 done");
 	}
 	//可移動方向
 	public List<int[]> isMovable(int[] p,int[][] m) {
@@ -194,27 +196,46 @@ public class Game3 {
 	}
 	//新node
 	public Node getNewNode(Node oldn, int[] oldp , int[] newp , int[][] m) {
-		List<int[]> r = new ArrayList<int[]>();
+		List<int[]> move = new ArrayList<int[]>();
+		List<List<int[]>> r = new ArrayList<List<int[]>>();
 		List<int[]> cl = new ArrayList<int[]>(oldn.c);
 		cl.set(cl.indexOf(oldp), newp);
-		Node n = new Node(cl,oldn.g+1,h(cl, m));
-		r.add(oldp);
-		r.add(newp);
-		n.r.addAll(oldn.r);
-		n.r.add(r);
+		move.add(oldp);
+		move.add(newp);
+		r.addAll(oldn.r);
+		r.add(move);
+		Node n = new Node(cl,g(r),h(cl, m));
+		n.r.addAll(r);
 		return n;
+	}//g()
+	public int g(List<List<int[]>> r) {
+		int f = 0;
+		boolean jump = false;
+		int[] x = null;
+		int[] y = null;
+		for(List<int[]> l : r) {
+			f += 1;
+			x = l.get(0);
+			if((l.get(0)[0] - l.get(1)[0]) / 2 != 0 || (l.get(0)[1] - l.get(1)[1]) / 2 != 0) {
+				if(x == y && jump) {
+					f -= 1;
+				}
+				jump = true;
+			}
+			else {
+				jump = false;
+			}
+			y = l.get(1);
+		}
+		return f;
 	}
 	//h()
 	public int h(List<int[]> c, int[][] m) {
 		int h = 0;
-		if(fail.contains(c)) {
-			return 9999;
-		}
 		for(int[] cc : c) {
 			h += 7-cc[1] > 0 ? 7-cc[1] : 0;
 			h += (cc[0] - cc[1] * -1 / 2) > 0 ? (cc[0] - cc[1] * -1 / 2)  : (cc[0] - cc[1] * -1 / 2) * -1; 
-		} 
-		h -= finish(m);
+		}
 		return h;
 	}
 	//結束
