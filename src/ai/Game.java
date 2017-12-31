@@ -16,7 +16,7 @@ public class Game {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 
-		// 下方走到上方
+		/*// 下方走到上方
 		System.out.println("甲");
 		ans.add(Checkers.init());
 		
@@ -100,10 +100,12 @@ public class Game {
 
 		Checkers.print(ans.peek());
 		System.out.printf("完成第一題\n");
-		System.out.printf("最少跳了%d步\n", totalCount);
+		System.out.printf("最少跳了%d步\n", totalCount);*/
 
-		/*System.out.println("丁");
+
+		Game3 g3 = new Game3();
+		g3.start();
 		Game4 g4 = new Game4();
-		g4.start();*/
+		g4.start();
 	}
 }

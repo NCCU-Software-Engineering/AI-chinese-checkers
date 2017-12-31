@@ -236,6 +236,7 @@ public class Game3 {
 			h += 7-cc[1] > 0 ? 7-cc[1] : 0;
 			h += (cc[0] - cc[1] * -1 / 2) > 0 ? (cc[0] - cc[1] * -1 / 2)  : (cc[0] - cc[1] * -1 / 2) * -1; 
 		}
+		h -= finish(m);
 		return h;
 	}
 	//µ²§ô

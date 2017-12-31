@@ -219,9 +219,9 @@ public class Game4 {
 	public int h(List<int[]> c, int[][] m) {
 		int h = 0;
 		for(int[] cc : c) {
-			h += (cc[0]+cc[1]+6 > 0 ? cc[0]+cc[1]+6 : 0); 
-					//: (cc[0]+cc[1]+5 > 0 ? cc[0]+cc[1]+5 //: 0)); 
-					//		: (cc[0]+cc[1]+6 > 0 ? cc[0]+cc[1]+6 : 0))); 
+			h += (cc[0]+cc[1]+6 > 0 ? cc[0]+cc[1]+6 //: 0); 
+					: (cc[0]+cc[1]+5 > 0 ? cc[0]+cc[1]+5 //: 0)); 
+							: (cc[0]+cc[1]+6 > 0 ? cc[0]+cc[1]+6 : 0))); 
 		}
 		h -= finish(m);
 		return h;
