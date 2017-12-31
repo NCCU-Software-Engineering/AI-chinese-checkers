@@ -22,12 +22,15 @@ public enum Direction {
 	public static Direction[] values(int i) {
 
 		if (i == 1) {
-			return new Direction[] { Direction.LEFTUP, Direction.RIGHTUP, Direction.RIGHT, Direction.LEFT };
+			return new Direction[] { Direction.LEFTUP, Direction.RIGHTUP };
 		} else if (i == 2) {
-			return new Direction[] {};
-		} else {
-			return new Direction[] { Direction.LEFTDOWN, Direction.RIGHTDOWN };
+			return new Direction[] { Direction.RIGHT, Direction.LEFT };
+		} else if (i == 3) {
+			return new Direction[] { Direction.LEFTUP, Direction.LEFT};
+		} else if (i == 4) {
+			return new Direction[] { Direction.RIGHTUP, Direction.LEFTDOWN };
 		}
+		return null;
 	}
 
 	// 看看跳多遠
@@ -41,8 +44,5 @@ public enum Direction {
 		}
 		return i;
 	}
-	
-	
-	
-	
+
 }

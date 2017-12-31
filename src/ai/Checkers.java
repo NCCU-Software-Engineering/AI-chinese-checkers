@@ -1,21 +1,33 @@
 package ai;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.EnumSet;
 
 public class Checkers {
 
 	private static final int SIZE = 21;
-	private static final int[][] map = Chessboard.map1;
+	private static int[][] map;
+
+	public static void setMap() {
+
+	}
 
 	// 取得最開始的chessSet
-	public static MySet init() {
-		int[][] map = Chessboard.mapInit;
+	public static MySet init(int i) {
+		if (i == 1) {
+			map = Chessboard.map1;
+		} else if (i == 2) {
+			map = Chessboard.map2;
+		}
+
 		int id = 0;
 		MySet chessSet = new MySet();
 
 		for (int x = 0; x < SIZE; x++) {
 			for (int y = 0; y < SIZE; y++) {
 				if (map[x][y] == 1) {
+					map[x][y] = 0;
 					chessSet.add(new Chess(id++, x, y));
 				}
 			}
@@ -34,11 +46,12 @@ public class Checkers {
 
 	// 判斷遊戲是否結束
 	public static boolean isWin(MySet chessSet) {
-		if (gatProgress(chessSet) == 70) {
-			return true;
-		} else {
-			return false;
+		for (Chess c : chessSet) {
+			if (map[c.x][c.y] != 2) {
+				return false;
+			}
 		}
+		return true;
 	}
 
 	// 取得所有可以移動方向
@@ -68,37 +81,42 @@ public class Checkers {
 	}
 
 	// 移動棋子
-	public static MySet move(MySet chessSet, int id, Direction d) {
+	public static MySet move(MySet chessSet, int id, Direction d, FileWriter fw) throws IOException {
+
 		MySet newSet = new MySet();
-		for(Chess c: chessSet) {
-			if(c.id == id) 
+		for (Chess c : chessSet) {
+			if (c.id == id) {
+				fw.write(String.format("(%d, %d); (%d, %d)\n", c.y - 10, -(c.x - 10), (c.y + d.y) - 10,
+						-((c.x + d.x) - 10)));
 				newSet.add(new Chess(c.id, c.x + d.x, c.y + d.y));
-			else
+			} else
 				newSet.add(new Chess(c.id, c.x, c.y));
-				
+
 		}
 		newSet.setLast(id, d);
 		return newSet;
 	}
 
 	// 跳躍棋子
-	public static MySet jump(MySet chessSet, int id, Direction d) {
+	public static MySet jump(MySet chessSet, int id, Direction d, FileWriter fw) throws IOException {
 		MySet newSet = new MySet();
-		for(Chess c: chessSet) {
-			if(c.id == id) 
-				newSet.add(new Chess(c.id, c.x + d.x *2, c.y + d.y*2));
-			else
+		for (Chess c : chessSet) {
+			if (c.id == id) {
+				fw.write(String.format("(%d, %d); (%d, %d)\n", c.y - 10, -(c.x - 10), (c.y + d.y * 2) - 10,
+						-((c.x + d.x * 2) - 10)));
+				newSet.add(new Chess(c.id, c.x + d.x * 2, c.y + d.y * 2));
+			} else
 				newSet.add(new Chess(c.id, c.x, c.y));
-				
+
 		}
 		newSet.setLast(id, d);
 		return newSet;
 	}
-	
+
 	// 複製
 	public static MySet clone(MySet chessSet) {
 		MySet newSet = new MySet();
-		for(Chess c: chessSet) {
+		for (Chess c : chessSet) {
 			newSet.add(new Chess(c.id, c.x, c.y));
 		}
 		return newSet;
@@ -111,7 +129,7 @@ public class Checkers {
 		}
 		return false;
 	}
-	
+
 	static void print(MySet chessSet) {
 		for (int x = 0; x < SIZE; x++) {
 			for (int s = 0; s < SIZE - x; s++) {

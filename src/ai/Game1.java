@@ -1,5 +1,6 @@
 package ai;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,56 +18,93 @@ public class Game1 {
 	static int maxTotalCount;
 	static int totalCount;
 
+	static int a;
+	static int b;
+	
+	static FileWriter fw;
+	
 	public static void main(String[] args) throws IOException, InterruptedException {
 
 		System.out.printf("遊戲開始\n");
 
+		fw = new FileWriter("result1.txt");
 		// 遊戲進行100次
 		maxTotalCount = Integer.MAX_VALUE;
-		for (int time = 0; time < 1000; time++) {
-			totalCount = Integer.MAX_VALUE;
-			hillClimbing(Checkers.init(), 0);
-			maxTotalCount = Math.min(maxTotalCount, totalCount);
-		}
-
+		a = 1;
+		b = 2;
+		// for (int time = 0; time < 1000; time++) {
+		totalCount = Integer.MAX_VALUE;
+		hillClimbing(Checkers.init(1), 0);
+		maxTotalCount = Math.min(maxTotalCount, totalCount);
+		// }
 		System.out.printf("遊戲結束\n");
 		System.out.printf("最少跳%d步\n", maxTotalCount);
+		fw.write("總計 "+maxTotalCount+" 步\n");
+		fw.close();
+		
+		fw = new FileWriter("result2.txt");
+		// 遊戲進行100次
+		maxTotalCount = Integer.MAX_VALUE;
+		a = 3;
+		b = 4;
+		// for (int time = 0; time < 1000; time++) {
+		totalCount = Integer.MAX_VALUE;
+		hillClimbing(Checkers.init(2), 0);
+		maxTotalCount = Math.min(maxTotalCount, totalCount);
+		// }
+		System.out.printf("遊戲結束\n");
+		System.out.printf("最少跳%d步\n", maxTotalCount);
+		fw.write("總計 "+maxTotalCount+" 步\n");
+		fw.close();
+		
+		Game3 g3 = new Game3();
+		g3.start();
+		Game4 g4 = new Game4();
+		g4.start();
 	}
 
 	// 二次方貪婪爬山演算法
-	public static void hillClimbing(MySet chessSet, int count) {
-		Checkers.print(chessSet);
-		System.out.println(count);
-		scanner.nextLine();
+	public static void hillClimbing(MySet chessSet, int count) throws IOException {
+		// Checkers.print(chessSet);
+		// System.out.println(count);
+		// scanner.nextLine();
 
 		if (Checkers.isWin(chessSet)) {
 			totalCount = Math.min(totalCount, count);
-			System.out.println("完成一個了" + count);
+			// System.out.println("完成一個了" + count);
 			return;
 		}
 
-		// if(count > 1000) {
-		// System.out.println("太久了!!!!");
-		// return;
-		// }
-
-		if (random.nextInt(10) > 2) {
-			System.out.println("jump");
-			goJump(chessSet, count);
+		if (count > 200) {
+			// System.out.println("太久了!!!!");
+			return;
 		}
-		else {
-			System.out.println("move");
+
+		if (random.nextInt(10) > 4) {
+			// System.out.println("jump");
+			goJump(chessSet, count);
+		} else {
+			// System.out.println("move");
 			goMove(chessSet, count);
 		}
 	}
 
 	// 移動
-	public static void goMove(MySet chessSet, int count) {
+	public static void goMove(MySet chessSet, int count) throws IOException {
 		Chess cc = null;
 		Direction dd = null;
 
 		outer: for (Chess c : chessSet.getRandom()) {
-			for (Direction d : Checkers.getMovable(chessSet, c, 1)) {
+			for (Direction d : Checkers.getMovable(chessSet, c, a)) {
+				// 避免走回頭路
+				if (chessSet.isRepeat(c.id, d)) {
+					continue;
+				}
+				cc = c;
+				dd = d;
+				break outer;
+			}
+			for (Direction d : Checkers.getMovable(chessSet, c, b)) {
 				// 避免走回頭路
 				if (chessSet.isRepeat(c.id, d)) {
 					continue;
@@ -78,69 +116,79 @@ public class Game1 {
 		}
 		if (cc != null && dd != null) {
 			// System.out.println(p + " move " + d.name());
-			hillClimbing(Checkers.move(chessSet, cc.id, dd), count + 1);
+			hillClimbing(Checkers.move(chessSet, cc.id, dd, fw), count + 1);
 		} else {
 			hillClimbing(chessSet, count);
 		}
 	}
 
 	// 跳躍
-	
 	static MyStack tempMaxStep = new MyStack();
 	static MyStack tempStep = new MyStack();
-	
-	public static void goJump(MySet chessSet, int count) {
+
+	public static void goJump(MySet chessSet, int count) throws IOException {
 		List<MyStack> StepList = new ArrayList<MyStack>();
 
 		for (Chess c : chessSet) {
 			tempMaxStep.clear();
 			tempStep.clear();
 			tempStep.id = c.id;
+
 			getMaxJump(chessSet, c.id);
-			
+
 			if (tempMaxStep.isEmpty()) {
-				return;
+				continue;
 			} else if (StepList.isEmpty()) {
-				StepList.add(tempMaxStep);
+				StepList.add((MyStack) tempMaxStep.clone());
 			} else if (Direction.gatProgress(StepList.get(0)) < Direction.gatProgress(tempMaxStep)) {
 				StepList.clear();
-				StepList.add(tempMaxStep);
+				StepList.add((MyStack) tempMaxStep.clone());
 			} else if (Direction.gatProgress(StepList.get(0)) == Direction.gatProgress(tempMaxStep)) {
-				StepList.add(tempMaxStep);
+				StepList.add((MyStack) tempMaxStep.clone());
 			}
 		}
+		// System.out.println(StepList);
 
 		if (StepList.isEmpty()) {
-			System.out.println("沒有東西可以跳");
+			// System.out.println("沒有東西可以跳");
 			hillClimbing(chessSet, count);
 		}
-		
+
 		for (MyStack step : StepList) {
 			keepJump(chessSet, step, count);
+			break;
 		}
 	}
-	
-	public static void getMaxJump(MySet chessSet, int id) {
 
-		for (Direction d : Checkers.getJumpable(chessSet, getChess(chessSet, id), 1)) {
+	public static void getMaxJump(MySet chessSet, int id) throws IOException {
+
+		for (Direction d : Checkers.getJumpable(chessSet, getChess(chessSet, id), a)) {
 			if (!tempStep.isEmpty() && tempStep.peek().isRepeat(d)) {
 				continue;
 			}
 			tempStep.add(d);
-			getMaxJump(Checkers.jump(chessSet, id, d), id);
+			getMaxJump(Checkers.jump(chessSet, id, d, fw), id);
+		}
+
+		for (Direction d : Checkers.getJumpable(chessSet, getChess(chessSet, id), b)) {
+			if (!tempStep.isEmpty() && tempStep.peek().isRepeat(d)) {
+				continue;
+			}
+			tempStep.add(d);
+			getMaxJump(Checkers.jump(chessSet, id, d, fw), id);
 		}
 
 		if (Direction.gatProgress(tempMaxStep) < Direction.gatProgress(tempStep)) {
-			tempMaxStep = tempStep;
+			tempMaxStep = (MyStack) tempStep.clone();
 		}
 		if (!tempStep.isEmpty()) {
 			tempStep.pop();
 		}
 	}
 
-	private static void keepJump(MySet chessSet, MyStack step, int count) {
+	private static void keepJump(MySet chessSet, MyStack step, int count) throws IOException {
 		for (Direction d : step) {
-			chessSet = Checkers.jump(chessSet, step.id, d);
+			chessSet = Checkers.jump(chessSet, step.id, d, fw);
 		}
 		hillClimbing(chessSet, count + 1);
 	}

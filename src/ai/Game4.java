@@ -270,7 +270,7 @@ public class Game4 {
 			y = l.get(1);
 		}
 		FileWriter fw = new FileWriter("result4.txt");
-		fw.write("總計 "+count+" 步" + output);
+		fw.write("總計 "+count+" 步" + output.replaceAll(";\n", ";"));
 		fw.close();
 	}
 	//輸出地圖
