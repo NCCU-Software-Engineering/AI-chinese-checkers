@@ -1,11 +1,11 @@
 package ai;
 
-public class Position implements Comparable<Position> {
+public class Chess implements Comparable<Chess> {
 	public int x;
 	public int y;
 	public int id;
 
-	Position(int id, int x, int y) {
+	Chess(int id, int x, int y) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -16,7 +16,7 @@ public class Position implements Comparable<Position> {
 		return String.format("(%d, %d)", x, y);
 	}
 
-	public boolean equals(Position p) {
+	public boolean equals(Chess p) {
 		if (this.x == p.x && this.y == p.y) {
 			return true;
 		}
@@ -29,7 +29,8 @@ public class Position implements Comparable<Position> {
 	}
 
 	@Override
-	public int compareTo(Position p) {
+	public int compareTo(Chess p) {
 		return (p.x * 100 + p.y) - (this.x * 100 + this.y);
 	}
+	
 }

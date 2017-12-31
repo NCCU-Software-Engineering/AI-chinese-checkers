@@ -9,35 +9,34 @@ public class Checkers {
 	private static final int SIZE = 21;
 	private static final int[][] map = Chessboard.map1;
 
-	// 取得最開始的cset
-	public static Set<Position> init() {
+	// 取得最開始的chessSet
+	public static Set<Chess> init() {
 		int[][] map = Chessboard.mapInit;
 		int id = 0;
-		Set<Position> cset = new TreeSet<Position>();
+		Set<Chess> chessSet = new TreeSet<Chess>();
 
-		for (int r = 0; r < SIZE; r++) {
-			for (int c = 0; c < SIZE; c++) {
-				if (map[r][c] == 1) {
-					cset.add(new Position(id++, r, c));
+		for (int x = 0; x < SIZE; x++) {
+			for (int y = 0; y < SIZE; y++) {
+				if (map[x][y] == 1) {
+					chessSet.add(new Chess(id++, x, y));
 				}
 			}
 		}
-		return cset;
+		return chessSet;
 	}
 
 	// 區得遊戲進度 70時完成
-	public static int gatProgress(Set<Position> cset) {
-		int i = 0;
-		for (Position p : cset) {
-			i += p.x;
+	public static int gatProgress(Set<Chess> chessSet) {
+		int progress = 0;
+		for (Chess c : chessSet) {
+			progress += c.x;
 		}
-		return i;
+		return progress;
 	}
 
 	// 判斷遊戲是否結束
-	public static boolean isWin(Set<Position> cset) {
-		if (gatProgress(cset) == 70) {
-			System.out.println("贏了耶");
+	public static boolean isWin(Set<Chess> chessSet) {
+		if (gatProgress(chessSet) == 70) {
 			return true;
 		} else {
 			return false;
@@ -45,11 +44,11 @@ public class Checkers {
 	}
 
 	// 取得所有可以移動方向
-	public static EnumSet<Direction> getMovable(Set<Position> cset, Position p, int i) {
+	public static EnumSet<Direction> getMovable(Set<Chess> chessSet, Chess c, int i) {
 		EnumSet<Direction> ans = EnumSet.noneOf(Direction.class);
 		for (Direction d : Direction.values(i)) {
-			if (map[p.x + d.x][p.y + d.y] == 0 || map[p.x + d.x][p.y + d.y] == 2) {
-				if (!have(cset, p.x + d.x, p.y + d.y)) {
+			if (map[c.x + d.x][c.y + d.y] == 0 || map[c.x + d.x][c.y + d.y] == 2) {
+				if (!have(chessSet, c.x + d.x, c.y + d.y)) {
 					ans.add(d);
 				}
 			}
@@ -58,11 +57,11 @@ public class Checkers {
 	}
 
 	// 取得所有可以跳躍方向
-	public static EnumSet<Direction> getJumpable(Set<Position> cset, Position p, int i) {
+	public static EnumSet<Direction> getJumpable(Set<Chess> chessSet, Chess c, int i) {
 		EnumSet<Direction> ans = EnumSet.noneOf(Direction.class);
 		for (Direction d : Direction.values(i)) {
-			if (map[p.x + d.x * 2][p.y + d.y * 2] == 0 || map[p.x + d.x * 2][p.y + d.y * 2] == 2) {
-				if (have(cset, p.x + d.x, p.y + d.y) && !have(cset, p.x + d.x * 2, p.y + d.y * 2)) {
+			if (map[c.x + d.x * 2][c.y + d.y * 2] == 0 || map[c.x + d.x * 2][c.y + d.y * 2] == 2) {
+				if (have(chessSet, c.x + d.x, c.y + d.y) && !have(chessSet, c.x + d.x * 2, c.y + d.y * 2)) {
 					ans.add(d);
 				}
 			}
@@ -71,42 +70,59 @@ public class Checkers {
 	}
 
 	// 移動棋子
-	public static Set<Position> move(Set<Position> cset, Position pos, Direction d) {
-		Set<Position> newSet = new TreeSet<Position>();
-		for(Position p: cset) {
-			if(p == pos) 
-				newSet.add(new Position(p.id, p.x + d.x, p.y + d.y));
+	public static Set<Chess> move(Set<Chess> chessSet, int id, Direction d) {
+		Set<Chess> newSet = new TreeSet<Chess>();
+		for(Chess c: chessSet) {
+			if(c.id == id) 
+				newSet.add(new Chess(c.id, c.x + d.x, c.y + d.y));
 			else
-				newSet.add(new Position(p.id, p.x, p.y));
+				newSet.add(new Chess(c.id, c.x, c.y));
 				
 		}
 		return newSet;
 	}
 
 	// 跳躍棋子
-	public static Set<Position> jump(Set<Position> cset, Position pos, Direction d) {
-		Set<Position> newSet = new TreeSet<Position>();
-		for(Position p: cset) {
-			if(p == pos) 
-				newSet.add(new Position(p.id, p.x + d.x *2, p.y + d.y*2));
+	public static Set<Chess> jump(Set<Chess> chessSet, int id, Direction d) {
+		Set<Chess> newSet = new TreeSet<Chess>();
+		for(Chess c: chessSet) {
+			if(c.id == id) 
+				newSet.add(new Chess(c.id, c.x + d.x *2, c.y + d.y*2));
 			else
-				newSet.add(new Position(p.id, p.x, p.y));
+				newSet.add(new Chess(c.id, c.x, c.y));
 				
 		}
 		return newSet;
 	}
+	
+	// 複製
+	public static Set<Chess> clone(Set<Chess> chessSet) {
+		Set<Chess> newSet = new TreeSet<Chess>();
+		for(Chess c: chessSet) {
+			newSet.add(new Chess(c.id, c.x, c.y));
+		}
+		return newSet;
+	}
 
-	static void print(Set<Position> cset) {
-		for (int r = 0; r < SIZE; r++) {
-			for (int s = 0; s < SIZE - r; s++) {
+	public static boolean have(Set<Chess> chessSet, int x, int y) {
+		for (Chess p : chessSet) {
+			if (p.x == x && p.y == y)
+				return true;
+		}
+		return false;
+	}
+	
+	static void print(Set<Chess> chessSet) {
+		for (int x = 0; x < SIZE; x++) {
+			for (int s = 0; s < SIZE - x; s++) {
 				System.out.print(' ');
 			}
-			for (int c = 0; c < SIZE; c++) {
+			for (int y = 0; y < SIZE; y++) {
 				System.out.print(' ');
-				if (have(cset, r, c))
+				if (have(chessSet, x, y))
 					System.out.print(1);
 				else
-					colorPrint(map[r][c]);
+					colorPrint(map[x][y]);
 			}
 			System.out.println();
 		}
@@ -133,14 +149,6 @@ public class Checkers {
 			System.out.print(' ');
 			break;
 		}
-	}
-
-	public static boolean have(Set<Position> cset, int x, int y) {
-		for (Position p : cset) {
-			if (p.x == x && p.y == y)
-				return true;
-		}
-		return false;
 	}
 
 }
