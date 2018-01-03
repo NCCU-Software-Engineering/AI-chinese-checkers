@@ -20,43 +20,55 @@ public class Game1 {
 
 	static int a;
 	static int b;
-	
+
+	static String sMax;
+	static StringBuffer s = new StringBuffer();
+
 	static FileWriter fw;
-	
+
 	public static void main(String[] args) throws IOException, InterruptedException {
 
-		System.out.printf("遊戲開始\n");
-
-		fw = new FileWriter("result1.txt");
+		System.out.printf("甲\n");
 		// 遊戲進行100次
 		maxTotalCount = Integer.MAX_VALUE;
 		a = 1;
 		b = 2;
-		// for (int time = 0; time < 1000; time++) {
-		totalCount = Integer.MAX_VALUE;
-		hillClimbing(Checkers.init(1), 0);
-		maxTotalCount = Math.min(maxTotalCount, totalCount);
-		// }
+		for (int time = 0; time < 1000; time++) {
+			totalCount = Integer.MAX_VALUE;
+			hillClimbing(Checkers.init(1), 0);
+			if(maxTotalCount > totalCount) {
+				maxTotalCount = totalCount;
+				sMax = s.toString();
+			}
+		}
 		System.out.printf("遊戲結束\n");
 		System.out.printf("最少跳%d步\n", maxTotalCount);
-		fw.write("總計 "+maxTotalCount+" 步\n");
+
+		fw = new FileWriter("result1.txt");
+		fw.write(sMax);
+		fw.write("總計 " + maxTotalCount + " 步\n");
 		fw.close();
-		
-		fw = new FileWriter("result2.txt");
+
 		// 遊戲進行100次
 		maxTotalCount = Integer.MAX_VALUE;
 		a = 3;
 		b = 4;
-		// for (int time = 0; time < 1000; time++) {
-		totalCount = Integer.MAX_VALUE;
-		hillClimbing(Checkers.init(2), 0);
-		maxTotalCount = Math.min(maxTotalCount, totalCount);
-		// }
+		for (int time = 0; time < 1000; time++) {
+			totalCount = Integer.MAX_VALUE;
+			hillClimbing(Checkers.init(2), 0);
+			if(maxTotalCount > totalCount) {
+				maxTotalCount = totalCount;
+				sMax = s.toString();
+			}
+		}
 		System.out.printf("遊戲結束\n");
 		System.out.printf("最少跳%d步\n", maxTotalCount);
-		fw.write("總計 "+maxTotalCount+" 步\n");
+
+		fw = new FileWriter("result2.txt");
+		fw.write(sMax);
+		fw.write("總計 " + maxTotalCount + " 步\n");
 		fw.close();
-		
+
 		Game3 g3 = new Game3();
 		g3.start();
 		Game4 g4 = new Game4();
@@ -116,7 +128,7 @@ public class Game1 {
 		}
 		if (cc != null && dd != null) {
 			// System.out.println(p + " move " + d.name());
-			hillClimbing(Checkers.move(chessSet, cc.id, dd, fw), count + 1);
+			hillClimbing(Checkers.move(chessSet, cc.id, dd, s), count + 1);
 		} else {
 			hillClimbing(chessSet, count);
 		}
@@ -167,7 +179,7 @@ public class Game1 {
 				continue;
 			}
 			tempStep.add(d);
-			getMaxJump(Checkers.jump(chessSet, id, d, fw), id);
+			getMaxJump(Checkers.jump(chessSet, id, d, s), id);
 		}
 
 		for (Direction d : Checkers.getJumpable(chessSet, getChess(chessSet, id), b)) {
@@ -175,7 +187,7 @@ public class Game1 {
 				continue;
 			}
 			tempStep.add(d);
-			getMaxJump(Checkers.jump(chessSet, id, d, fw), id);
+			getMaxJump(Checkers.jump(chessSet, id, d, s), id);
 		}
 
 		if (Direction.gatProgress(tempMaxStep) < Direction.gatProgress(tempStep)) {
@@ -188,7 +200,7 @@ public class Game1 {
 
 	private static void keepJump(MySet chessSet, MyStack step, int count) throws IOException {
 		for (Direction d : step) {
-			chessSet = Checkers.jump(chessSet, step.id, d, fw);
+			chessSet = Checkers.jump(chessSet, step.id, d, s);
 		}
 		hillClimbing(chessSet, count + 1);
 	}

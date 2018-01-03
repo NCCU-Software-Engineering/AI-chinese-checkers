@@ -7,7 +7,7 @@ import java.util.EnumSet;
 public class Checkers {
 
 	private static final int SIZE = 21;
-	private static int[][] map;
+	private static int[][] map = new int[21][21];
 
 	public static void setMap() {
 
@@ -16,9 +16,13 @@ public class Checkers {
 	// 取得最開始的chessSet
 	public static MySet init(int i) {
 		if (i == 1) {
-			map = Chessboard.map1;
+			for(int x=0; x < SIZE; x++) {
+				map[x] = Chessboard.map1[x].clone();	
+			}
 		} else if (i == 2) {
-			map = Chessboard.map2;
+			for(int x=0; x < SIZE; x++) {
+				map[x] = Chessboard.map2[x].clone();	
+			}
 		}
 
 		int id = 0;
@@ -81,12 +85,12 @@ public class Checkers {
 	}
 
 	// 移動棋子
-	public static MySet move(MySet chessSet, int id, Direction d, FileWriter fw) throws IOException {
+	public static MySet move(MySet chessSet, int id, Direction d, StringBuffer s) throws IOException {
 
 		MySet newSet = new MySet();
 		for (Chess c : chessSet) {
 			if (c.id == id) {
-				fw.write(String.format("(%d, %d); (%d, %d)\n", c.y - 10, -(c.x - 10), (c.y + d.y) - 10,
+				s.append(String.format("(%d, %d); (%d, %d)\n", c.y - 10, -(c.x - 10), (c.y + d.y) - 10,
 						-((c.x + d.x) - 10)));
 				newSet.add(new Chess(c.id, c.x + d.x, c.y + d.y));
 			} else
@@ -98,11 +102,11 @@ public class Checkers {
 	}
 
 	// 跳躍棋子
-	public static MySet jump(MySet chessSet, int id, Direction d, FileWriter fw) throws IOException {
+	public static MySet jump(MySet chessSet, int id, Direction d, StringBuffer s) throws IOException {
 		MySet newSet = new MySet();
 		for (Chess c : chessSet) {
 			if (c.id == id) {
-				fw.write(String.format("(%d, %d); (%d, %d)\n", c.y - 10, -(c.x - 10), (c.y + d.y * 2) - 10,
+				s.append(String.format("(%d, %d); (%d, %d)\n", c.y - 10, -(c.x - 10), (c.y + d.y * 2) - 10,
 						-((c.x + d.x * 2) - 10)));
 				newSet.add(new Chess(c.id, c.x + d.x * 2, c.y + d.y * 2));
 			} else
