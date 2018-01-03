@@ -29,12 +29,12 @@ public class Game1 {
 	public static void main(String[] args) throws IOException, InterruptedException {
 
 		System.out.printf("甲\n");
-		// 遊戲進行100次
 		maxTotalCount = Integer.MAX_VALUE;
 		a = 1;
 		b = 2;
-		for (int time = 0; time < 1000; time++) {
+		for (int time = 0; time < 50000; time++) {
 			totalCount = Integer.MAX_VALUE;
+			s.delete(0, s.length());
 			hillClimbing(Checkers.init(1), 0);
 			if(maxTotalCount > totalCount) {
 				maxTotalCount = totalCount;
@@ -49,12 +49,13 @@ public class Game1 {
 		fw.write("總計 " + maxTotalCount + " 步\n");
 		fw.close();
 
-		// 遊戲進行100次
+		System.out.printf("乙\n");
 		maxTotalCount = Integer.MAX_VALUE;
 		a = 3;
 		b = 4;
-		for (int time = 0; time < 1000; time++) {
+		for (int time = 0; time < 50000; time++) {
 			totalCount = Integer.MAX_VALUE;
+			s.delete(0, s.length());
 			hillClimbing(Checkers.init(2), 0);
 			if(maxTotalCount > totalCount) {
 				maxTotalCount = totalCount;
@@ -69,10 +70,10 @@ public class Game1 {
 		fw.write("總計 " + maxTotalCount + " 步\n");
 		fw.close();
 
-		Game3 g3 = new Game3();
-		g3.start();
-		Game4 g4 = new Game4();
-		g4.start();
+		//Game3 g3 = new Game3();
+		//g3.start();
+		//Game4 g4 = new Game4();
+		//g4.start();
 	}
 
 	// 二次方貪婪爬山演算法
@@ -87,12 +88,12 @@ public class Game1 {
 			return;
 		}
 
-		if (count > 200) {
+		if (count > maxTotalCount) {
 			// System.out.println("太久了!!!!");
 			return;
 		}
 
-		if (random.nextInt(10) > 4) {
+		if (random.nextInt(10) > 2) {
 			// System.out.println("jump");
 			goJump(chessSet, count);
 		} else {
@@ -179,7 +180,7 @@ public class Game1 {
 				continue;
 			}
 			tempStep.add(d);
-			getMaxJump(Checkers.jump(chessSet, id, d, s), id);
+			getMaxJump(Checkers.jump(chessSet, id, d, new StringBuffer(), true), id);
 		}
 
 		for (Direction d : Checkers.getJumpable(chessSet, getChess(chessSet, id), b)) {
@@ -187,7 +188,7 @@ public class Game1 {
 				continue;
 			}
 			tempStep.add(d);
-			getMaxJump(Checkers.jump(chessSet, id, d, s), id);
+			getMaxJump(Checkers.jump(chessSet, id, d, new StringBuffer(), true), id);
 		}
 
 		if (Direction.gatProgress(tempMaxStep) < Direction.gatProgress(tempStep)) {
@@ -199,9 +200,12 @@ public class Game1 {
 	}
 
 	private static void keepJump(MySet chessSet, MyStack step, int count) throws IOException {
+		boolean b = true;
 		for (Direction d : step) {
-			chessSet = Checkers.jump(chessSet, step.id, d, s);
+			chessSet = Checkers.jump(chessSet, step.id, d, s, b);
+			b = false;
 		}
+		s.append("\n");
 		hillClimbing(chessSet, count + 1);
 	}
 
